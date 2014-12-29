@@ -43,7 +43,6 @@ typedef struct {
    float d_angle[240];
    float d2_angle[240];
    opus_val32 inmem[ANALYSIS_BUF_SIZE];
-   int   mem_fill;                      /* number of usable samples in the buffer */
    float prev_band_tonality[NB_TBANDS];
    float prev_tonality;
    float E[NB_FRAMES][NB_TBANDS];
@@ -56,6 +55,7 @@ typedef struct {
    float music_prob;
    float Etracker;
    float lowECount;
+   int mem_fill; /* number of usable samples in the buffer */
    int E_count;
    int last_music;
    int last_transition;

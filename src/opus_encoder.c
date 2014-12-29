@@ -94,11 +94,11 @@ struct OpusEncoder {
     int          prev_framesize;
     int          bandwidth;
     int          silk_bw_switch;
-    /* Sampling rate (at the API level) */
-    int          first;
     opus_val16 * energy_masking;
     StereoWidthState width_mem;
     opus_val16   delay_buffer[MAX_ENCODER_BUFFER*2];
+    /* Sampling rate (at the API level) */
+    int          first;
 #ifndef DISABLE_FLOAT_API
     TonalityAnalysisState analysis;
     int          detected_bandwidth;
@@ -107,6 +107,20 @@ struct OpusEncoder {
     opus_uint32  rangeFinal;
     int          arch;
 };
+
+/* Ensure that the std array in TonalityAnalysisState as contained
+ * in OpusEncoder is 16-byte aligned. Otherwise MSVC2013.3+
+ * (with the flags -Oi, which is implied by -O2, and -fp:fast) emits an
+ * auto-vectorized sqrt loop (SQRTPS) which leads to crashes because
+ * the memory source operand (the std array) is not 16-byte aligned. */
+#if defined(_M_X64) && _MSC_FULL_VER >= 180030723 /* MSVC 2013.3 x64 or later */
+#define STATIC_ASSERT(e) typedef char __C_ASSERT__[(e)?1:-1]
+#define IS_16_BYTE_ALIGNED(v) (((v) & 15) == 0)
+static void ____ensure_msvc2013_upgrade3_aligned() {
+    STATIC_ASSERT(IS_16_BYTE_ALIGNED(offsetof(OpusEncoder, analysis)
+                   + offsetof(TonalityAnalysisState, std)));
+}
+#endif
 
 /* Transition tables for the voice and music. First column is the
    middle (memoriless) threshold. The second column is the hysteresis
