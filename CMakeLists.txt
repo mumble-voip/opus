@@ -19,13 +19,9 @@ option(OPUS_FIXED_POINT
 option(OPUS_ENABLE_FLOAT_API
        "Compile with the floating point API (for machines with float library"
        ON)
-option(OPUS_INSTALL_PKG_CONFIG_MODULE "Install PkgConfig module" ON)
-option(OPUS_INSTALL_CMAKE_CONFIG_MODULE "Install CMake package config module"
-       ON)
 
 include(opus_config.cmake)
 include(opus_sources.cmake)
-include(GNUInstallDirs)
 include(CMakeDependentOption)
 include(FeatureSummary)
 
@@ -125,11 +121,6 @@ add_feature_info(
   FLOAT_API OPUS_ENABLE_FLOAT_API
   "compile with the floating point API (for machines with float library)")
 
-add_feature_info(INSTALL_PKG_CONFIG_MODULE OPUS_INSTALL_PKG_CONFIG_MODULE
-                 "install PkgConfig module")
-add_feature_info(INSTALL_CMAKE_CONFIG_MODULE OPUS_INSTALL_CMAKE_CONFIG_MODULE
-                 "install CMake package config module")
-
 if(OPUS_CPU_X86 OR OPUS_CPU_X64)
   add_feature_info(X86_MAY_HAVE_SSE OPUS_X86_MAY_HAVE_SSE
                    "does runtime check for SSE1 support")
@@ -153,25 +144,14 @@ feature_summary(WHAT ALL)
 
 add_library(opus ${opus_sources} ${opus_sources_float})
 
-set(Opus_PUBLIC_HEADER
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/opus.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/opus_custom.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/opus_defines.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/opus_multistream.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/opus_projection.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/opus_types.h)
-
 set_target_properties(opus
                       PROPERTIES
                                  VERSION
-                                 ${PROJECT_VERSION}
-                                 PUBLIC_HEADER
-                                 "${Opus_PUBLIC_HEADER}")
+                                 ${PROJECT_VERSION})
 
 target_include_directories(
   opus
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   PRIVATE ${CMAKE_CURRENT_BINARY_DIR}
           ${CMAKE_CURRENT_SOURCE_DIR}
           celt
@@ -300,53 +280,6 @@ if(COMPILER_SUPPORT_NEON AND OPUS_USE_NEON)
                                OPUS_ARM_PRESUME_NEON
                                OPUS_ARM_PRESUME_NEON_INTR)
   endif()
-endif()
-
-install(TARGETS opus
-        EXPORT OpusTargets
-        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-        PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/opus)
-
-if(OPUS_INSTALL_PKG_CONFIG_MODULE)
-  set(prefix ${CMAKE_INSTALL_PREFIX})
-  set(exec_prefix ${CMAKE_INSTALL_PREFIX})
-  set(libdir ${CMAKE_INSTALL_FULL_LIBDIR})
-  set(includedir ${CMAKE_INSTALL_FULL_INCLUDEDIR})
-  set(VERSION ${OPUS_LIBRARY_VERSION})
-  set(VERSION ${OPUS_LIBRARY_VERSION})
-  if(HAVE_LIBM)
-    set(LIBM "-lm")
-  endif()
-  configure_file(opus.pc.in opus.pc)
-  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/opus.pc
-          DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
-endif()
-
-if(OPUS_INSTALL_CMAKE_CONFIG_MODULE)
-  set(CMAKE_INSTALL_PACKAGEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
-  install(EXPORT OpusTargets
-          NAMESPACE Opus::
-          DESTINATION ${CMAKE_INSTALL_PACKAGEDIR})
-
-  include(CMakePackageConfigHelpers)
-
-  set(INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR})
-  configure_package_config_file(OpusConfig.cmake.in
-                                OpusConfig.cmake
-                                INSTALL_DESTINATION
-                                ${CMAKE_INSTALL_PACKAGEDIR}
-                                PATH_VARS
-                                INCLUDE_INSTALL_DIR
-                                INSTALL_PREFIX
-                                ${CMAKE_INSTALL_PREFIX})
-  write_basic_package_version_file(OpusConfigVersion.cmake
-                                   VERSION ${PROJECT_VERSION}
-                                   COMPATIBILITY SameMajorVersion)
-  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/OpusConfig.cmake
-                ${CMAKE_CURRENT_BINARY_DIR}/OpusConfigVersion.cmake
-          DESTINATION ${CMAKE_INSTALL_PACKAGEDIR})
 endif()
 
 if(OPUS_BUILD_PROGRAMS)
