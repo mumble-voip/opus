@@ -2,20 +2,10 @@ cmake_minimum_required(VERSION 3.1)
 
 include(opus_functions.cmake)
 
-get_library_version(OPUS_LIBRARY_VERSION OPUS_LIBRARY_VERSION_MAJOR)
-message(STATUS "Opus library version: ${OPUS_LIBRARY_VERSION}")
+project(Opus LANGUAGES C VERSION 1.3.1)
 
-get_package_version(PACKAGE_VERSION)
-message(STATUS "Opus package version: ${PACKAGE_VERSION}")
+message(STATUS "Opus version: ${PROJECT_VERSION}")
 
-string(REGEX
-       REPLACE "^([0-9]+.[0-9]+\\.?([0-9]+)?).*"
-               "\\1"
-               PROJECT_VERSION
-               ${PACKAGE_VERSION})
-message(STATUS "Opus project version: ${PROJECT_VERSION}")
-
-project(Opus LANGUAGES C VERSION ${PROJECT_VERSION})
 include(opus_buildtype.cmake)
 
 option(OPUS_BUILD_SHARED_LIBRARY "Build shared library" OFF)
@@ -172,10 +162,9 @@ set(Opus_PUBLIC_HEADER
     ${CMAKE_CURRENT_SOURCE_DIR}/include/opus_types.h)
 
 set_target_properties(opus
-                      PROPERTIES SOVERSION
-                                 ${OPUS_LIBRARY_VERSION_MAJOR}
+                      PROPERTIES
                                  VERSION
-                                 ${OPUS_LIBRARY_VERSION}
+                                 ${PROJECT_VERSION}
                                  PUBLIC_HEADER
                                  "${Opus_PUBLIC_HEADER}")
 
