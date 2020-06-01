@@ -189,7 +189,10 @@ target_include_directories(
           silk)
 
 target_link_libraries(opus PRIVATE ${OPUS_REQUIRED_LIBRARIES})
-target_compile_definitions(opus PRIVATE OPUS_BUILD ENABLE_HARDENING)
+target_compile_definitions(
+  opus
+  PRIVATE PACKAGE_VERSION="${PROJECT_VERSION}"
+          OPUS_BUILD ENABLE_HARDENING)
 
 if(NOT MSVC)
   target_compile_definitions(opus PRIVATE FORTIFY_SOURCE=2)
