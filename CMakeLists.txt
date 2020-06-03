@@ -308,6 +308,8 @@ if(BUILD_TESTING)
 
   # tests
   add_executable(test_opus_decode ${test_opus_decode_sources})
+  # For the Mumble project we'll want all tests to live in build/tests
+  set_target_properties(test_opus_decode PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tests")
   target_include_directories(test_opus_decode
                              PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
   target_link_libraries(test_opus_decode PRIVATE opus)
@@ -317,6 +319,8 @@ if(BUILD_TESTING)
   add_test(test_opus_decode test_opus_decode)
 
   add_executable(test_opus_padding ${test_opus_padding_sources})
+  # For the Mumble project we'll want all tests to live in build/tests
+  set_target_properties(test_opus_padding PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tests")
   target_include_directories(test_opus_padding
                              PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
   target_link_libraries(test_opus_padding PRIVATE opus)
